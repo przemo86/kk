@@ -1,4 +1,0 @@
-kk
-==
-
-Krzysiek Kramarz
