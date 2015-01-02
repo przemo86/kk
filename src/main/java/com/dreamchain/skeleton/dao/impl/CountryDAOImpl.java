@@ -1,11 +1,12 @@
 package com.dreamchain.skeleton.dao.impl;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import com.dreamchain.skeleton.dao.CountryDAO;
 import com.dreamchain.skeleton.model.Country;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -14,31 +15,34 @@ import java.util.List;
 @Repository
 public class CountryDAOImpl implements CountryDAO {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public Country getCountry(String id) {
-        Session session = this.sessionFactory.openSession();
-        return (Country) session.createQuery("from Country where c.countryId = :aa").setParameter("aa", id).uniqueResult();
+
+        return (Country) em.createQuery("from Country where c.countryId = :aa").setParameter("aa", id).getSingleResult();
     }
 
     @Override
     public List<Country> getAll() {
-        Session session = this.sessionFactory.openSession();
-        return session.createQuery("from Country").list();
+        return em.createQuery("from Country").getResultList();
     }
 
     @Override
+    @Transactional
     public void add(Country c) {
-        Session session = this.sessionFactory.openSession();
-        session.save(c);
-
+        em.persist(c);
     }
 
     @Override
+    @Transactional
     public void remove(Country c) {
-
+        System.out.println("BEFORE");
+        c = em.merge(c);
+        System.out.println("MERGED");
+        em.remove(c);
+        System.out.println("AFTER");
     }
 
     @Override
